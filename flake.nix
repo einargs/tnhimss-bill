@@ -12,7 +12,7 @@
   let system = "x86_64-linux"; in
   with nixpkgs.legacyPackages.${system}; {
     devShells.x86_64-linux.default = mkShell {
-      buildInputs = [ python312Packages.virtualenv python312 ];
+      buildInputs = [ python311Packages.virtualenv python311 ];
        src = [
          ./flake.nix
          ./flake.lock
