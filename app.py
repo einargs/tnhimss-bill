@@ -3,6 +3,7 @@ import socketio
 import hypercorn
 import asyncio
 import aiofiles
+import pathlib
 from fhir.resources.R4B.bundle import Bundle
 
 # If we end up needing quart, this is how you integerate the two:
@@ -27,8 +28,8 @@ async def load_fhir_bundle(patient_id):
   Load and parse the appropriate FHIR json file for a patient id.
   """
   file_path = patient_json_path(patient_id)
-  with aiofiles.open(file_path) as file:
-    raw_json = await file.readall()
+  async with aiofiles.open(file_path) as file:
+    raw_json = await file.read()
     return Bundle.parse_raw(raw_json)
 
 def format_records(bundle):
@@ -66,17 +67,17 @@ async def handle_start_chat(sid, patient_id):
   summary = await send_to_chatbot(summary_prompt)
   async with sio.session(sid) as session:
     session['patient_id'] = patient_id
-    session['formatted_records'] = formatted_records)
+    session['formatted_records'] = formatted_records
     session['chatlog'] = [summary]
     await sio.emit('server-msg', data=summary, to=sid)
 
 @sio.on('client-msg')
 async def handle_client_msg(sid, msg):
   async with sio.session(sid) as session:
-    session['chatlog'].push(msg)
+    session['chatlog'].append(msg)
     transcript_prompt = format_transcript(
         session['formatted_records'], session['chatlog'])
     reply = await send_to_chatbot(transcript_prompt)
-    session['chatlog'].push(reply)
+    session['chatlog'].append(reply)
     await sio.emit('server-msg', data=reply, to=sid)
 
