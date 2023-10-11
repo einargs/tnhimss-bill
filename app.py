@@ -51,6 +51,7 @@ def format_transcript(formatted_records, transcript):
   chatbot can reply to. Also include information from the formatted
   healthcare records. Prompt the chatbot to respond.
   """
+  print(transcript)
   return "PLACEHOLDER TRANSCRIPT"
 
 async def send_to_chatbot(msg):
@@ -74,6 +75,8 @@ async def handle_start_chat(sid, patient_id):
 @sio.on('client-msg')
 async def handle_client_msg(sid, msg):
   async with sio.session(sid) as session:
+    if 'patient_id' not in session:
+      raise "client-msg recieved without first recieving a start-chat"
     session['chatlog'].append(msg)
     transcript_prompt = format_transcript(
         session['formatted_records'], session['chatlog'])
