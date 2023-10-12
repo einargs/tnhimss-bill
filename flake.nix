@@ -13,6 +13,7 @@
   with nixpkgs.legacyPackages.${system}; {
     devShells.x86_64-linux.default = mkShell {
       buildInputs = [
+        # `virtualenv` is a more capable version of the `venv` module.
         python311Packages.virtualenv
         python311
         nodejs_20
