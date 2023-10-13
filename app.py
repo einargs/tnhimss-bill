@@ -9,7 +9,10 @@ from fhir.resources.R4B.bundle import Bundle
 # If we end up needing quart, this is how you integerate the two:
 # https://python-socketio.readthedocs.io/en/latest/api.html#socketio.ASGIApp
 
+from quart_cors import cors
+
 app = Quart(__name__)
+app = cors(app, allow_origin="*")
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 asgi = socketio.ASGIApp(sio, other_asgi_app=app)
 
@@ -59,9 +62,13 @@ async def send_to_chatbot(msg):
   Send a string to the chatbot and get back its response.
   """
   return f'PLACEHOLDER RESPONSE TO {msg}'
+@sio.on('connect')
+async def handle_connect(sid, arg):
+  print("connected {}".format(sid))
 
 @sio.on('start-chat')
 async def handle_start_chat(sid, patient_id):
+  print(f"starting chat {sid}")
   bundle = await load_fhir_bundle(patient_id)
   formatted_records = format_records(bundle)
   summary_prompt = create_summary_prompt(bundle)
@@ -76,11 +83,10 @@ async def handle_start_chat(sid, patient_id):
 async def handle_client_msg(sid, msg):
   async with sio.session(sid) as session:
     if 'patient_id' not in session:
-      raise "client-msg recieved without first recieving a start-chat"
+      raise RuntimeError("client-msg received without first receiving a start-chat")
     session['chatlog'].append(msg)
     transcript_prompt = format_transcript(
         session['formatted_records'], session['chatlog'])
     reply = await send_to_chatbot(transcript_prompt)
     session['chatlog'].append(reply)
     await sio.emit('server-msg', data=reply, to=sid)
-
