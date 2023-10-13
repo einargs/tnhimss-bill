@@ -38,6 +38,11 @@
 8. change to the `bill-site` directory and run `pnpm install`. Now you can run
   the website with `pnpm run dev`.
 
+# Windows
+On windows using windows bash you can use `source windows-start-python.sh` to
+enter the virtual environment with all of the packages installed. You need to
+do this every time you open a new bash terminal.
+
 # FHIR Documentation
 You can run a python documentation server locally with `pydoc -b` or
 `python -m pydoc -b`.  This will open up a web page that lists all of the
