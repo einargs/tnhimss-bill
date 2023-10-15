@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import './App.css';
 import {io} from 'socket.io-client';
@@ -16,20 +16,21 @@ import {ScrollArea} from "@/components/ui/scroll-area"
 import {Card} from "@/components/ui/card.jsx";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.jsx";
 
+type FormData = {
+    chatInput: string;
+};
 
-const patientIds = ['Aaron Brekke']
-
+const patientIds = ['aaron-brekke']
 
 const URL = "http://localhost:5000";
 // ! KEEP SOCKET HERE TO PREVENT RE-CONNECTIONS
 const socket = io(URL);
 
-function useSocket() {
-    const [transcript, setTranscript] = useState([])
+function useSocket(setIsSending: React.Dispatch<React.SetStateAction<boolean>>) {
+    const [transcript, setTranscript] = useState<string[]>([]);
     const [isConnected, setIsConnected] = useState(socket.connected);
 
     useEffect(() => {
-            console.log("test");
         function onConnect() {
             setIsConnected(true);
         }
@@ -38,8 +39,10 @@ function useSocket() {
             setIsConnected(false);
         }
 
-        function onServerMsg(msg) {
+        function onServerMsg(msg: any) {
             setTranscript(prev => [...prev, msg])
+            setIsSending(false);
+
         }
 
         socket.on('connect', onConnect);
@@ -56,51 +59,45 @@ function useSocket() {
 }
 
 function App() {
+    const [isSending, setIsSending] = useState(false);
+    const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
     const [isChatStarted, setIsChatStarted] = useState(false);
-    const [isConnected, transcript, setTranscript] = useSocket();
-    const [message, setMessage] = useState("");
+    const [isConnected, transcript, setTranscript] = useSocket(setIsSending) as [boolean, string[], React.Dispatch<React.SetStateAction<string[]>>];
 
-    function startChat() {
-        socket.emit('start-chat', "aaron-brekke");
+    function startChat(patientId: string) {
+        setSelectedPatient(patientId);
+        socket.emit('start-chat', patientId);
         setIsChatStarted(true);
     }
 
-    function onSubmit(data) {
+    function onSubmit(data: FormData) {
+        setIsSending(true);
         const chatMsg = data.chatInput;
         setTranscript(prev => [...prev, chatMsg]);
         socket.emit('client-msg', chatMsg);
-        setMessage("");  // Clear the message state here
+        form.reset({chatInput: ""});
     }
 
-    const form = useForm()
+    const form = useForm<FormData>();
 
     return (
         <div className="h-[94vh] flex flex-col">
             <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                <h1>Simple frontend to test responses</h1>
                 <p>{isConnected ? "Connected" : "Not Connected"}</p>
                 <p>{isChatStarted ? "Chat Started" : "Chat Not Started"}</p>
-                <div className="card">
-                    <Button onClick={startChat}>
-                        Start Chat
-                    </Button>
-                </div>
-
-
                 <ScrollArea className="h-full w-full rounded-md border p-4 mb-2 text-left space-y-4">
                     {transcript.map((line, idx) =>
                         <Card className='p-4' key={idx}>{line}</Card>)}
                 </ScrollArea>
-
-
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-row space-x-2">
                         <FormField
                             control={form.control}
-                            name="email"
+                            name="chatInput"
                             render={({field}) => (
                                 <FormItem>
-                                    <Select defaultValue={field.value}>
+                                    <Select defaultValue={field.value} onValueChange={(e) => startChat(e.valueOf())}
+                                    >
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select a patient"/>
@@ -117,20 +114,18 @@ function App() {
                         />
                         <FormField
                             control={form.control}
-                            className="flex-grow"
                             name="chatInput"
                             render={({field}) => (
                                 <FormItem className="flex-grow">
                                     <FormControl className="flex-grow">
-                                        <Input placeholder="Enter your message" {...field} className="flex-grow"/>
+                                        <Input placeholder="Enter your message" {...field} className="flex-grow" disabled={isSending || !selectedPatient} />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit" disabled={isSending || !selectedPatient}>Submit</Button>
                     </form>
                 </Form>
-
             </ThemeProvider>
         </div>
     );

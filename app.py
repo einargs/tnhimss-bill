@@ -81,6 +81,7 @@ async def handle_start_chat(sid, patient_id):
 
 @sio.on('client-msg')
 async def handle_client_msg(sid, msg):
+  await asyncio.sleep(3)
   async with sio.session(sid) as session:
     if 'patient_id' not in session:
       raise RuntimeError("client-msg received without first receiving a start-chat")
