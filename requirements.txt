@@ -4,3 +4,4 @@ Quart == 0.19.3
 hypercorn == 0.14.4
 aiofiles == 23.2.1
 openai==0.28.1
+pandas==2.1.0
