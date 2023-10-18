@@ -83,11 +83,11 @@ function App() {
     return (
         <div className="h-[94vh] flex flex-col">
             <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                <p>{isConnected ? "Connected" : "Not Connected"}</p>
-                <p>{isChatStarted ? "Chat Started" : "Chat Not Started"}</p>
+                <p className='hidden'>{isConnected ? "Connected" : "Not Connected"}</p>
+                <p className='hidden'>{isChatStarted ? "Chat Started" : "Chat Not Started"}</p>
                 <ScrollArea className="h-full w-full rounded-md border p-4 mb-2 text-left space-y-4">
                     {transcript.map((line, idx) =>
-                        <Card className='p-4' key={idx}>{line}</Card>)}
+                        <Card className={`p-4 m-2 w-fit ${idx % 2 === 0 ? 'mr-auto' : 'ml-auto'}`} key={idx}>{line}</Card>)}
                 </ScrollArea>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-row space-x-2">
