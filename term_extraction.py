@@ -21,14 +21,14 @@ for entry in bundle.entry:
 
 filtered_fhir_dict = {key: value for key, value in fhir_dict.items() if fhir_dict.items() is not None}
 
-for key, value in filtered_fhir_dict.items():
-  print(key, str(value))
+# for key, value in filtered_fhir_dict.items():
+  # print(key, str(value))
 
 #pattern = r'\w+\s*=\s*None,*? '
 # f = 'dictFile.txt'
 
 # def writeDict(fhir_dict, f):
-#     with open(f, "w") as file:
+#     with open(f, "a") as file:
 #         for key, value in fhir_dict.items():
 #             file.write(key + ", " + str(value) + "\n")
 
@@ -46,19 +46,84 @@ with open("dictFile.txt", "r") as file:
             key, value = parts
             filtered_fhir_dict[key] = value
 
-# Print the loaded dictionary
-print(filtered_fhir_dict)
+# for key in filtered_fhir_dict.keys():
+#    for value in filtered_fhir_dict.values():
+#       if 
+
+# word = 'Extension'
+# if word in filtered_fhir_dict.values():
+# # Print the loaded dictionary
+#    print(f"The value '{word}' is in the dictionary.")
+# else:
+#     print(f"The value '{word}' is not in the dictionary.")
+exp = r'\w.+'
+to_include = (('language', exp), ('modifierExtension', exp), ('active', exp),
+               ('contact', exp), ('deceasedBoolean', exp), ('deceasedDateTime', exp), ('gender', r'(male|female)'), 
+               ('generalPractitioner', exp), ('managingOrganization', exp), ('multipleBirthBoolean', r'(False|True)'),
+               ('multipleBirthInteger', exp), ('appointment', exp), ('diagnosis', exp), ('episodeOfCare', exp),
+               ('hospitalization', exp), ('identifier', exp), ('length', exp), ('location', exp), ('partOf', exp),
+               ('priority', exp), ('reasonReference', exp), ('serviceType', exp), ('status', 'finished'), ('statusHistory', exp),
+               ('abatementAge', exp), ('asserter', exp), ('bodySite', exp), ('category', exp), ('evidence', exp),
+               ('identifier', exp), ('note', exp), ('onsetAge', exp), ('recorder', exp), ('severity', exp), ('stage', exp),
+               ('reasonReference', exp), ('status', exp), ('telecom', exp), ('author', exp), ('contributor', exp), 
+               ('created', exp), ('description', exp), ('goal', exp), ('identifier', exp), ('intent', exp), ('replaces', exp),
+               ('status', exp), ('supportingInfo', exp), ('title', exp), ('doseQuantity', exp), ('education', exp),
+               ('expirationDate', exp), ('fundingSource', exp), ('identifier', exp), ('isSubpotent', exp), ('location', exp),
+               ('lotNumber', exp), ('manufacturer', exp), ('note', exp), ('performer', exp), ('programEligibility', exp),
+               ('protocolApplied', exp), ('reaction', exp), ('reasonCode', exp), ('reasonReference', exp),
+               ('recorded', exp), ('status', exp), ('statusReason', exp), ('subpotentReason', exp), 
+               ('complication', exp), ('complicationDetail', exp), ('focalDevice', exp), ('followUp', exp), ('identifier', exp),
+               ('location', exp), ('note', exp), ('outcome', exp), ('partOf', exp), ('performedAge', exp), ('performedDateTime', exp),
+               ('category', exp), ('courseOfTherapyType', exp), ('detectedIssue', exp), ('dispenseRequest', exp), ('doNotPerform', exp),
+               ('eventHistory', exp), ('groupIdentifier', exp), ('substitution', exp), ('supportingInformation', exp)
+               )
+print(type(to_include))
+# list_include = list()
+# for item in to_include:
+#    list_include.append(str(item))
+#     matches = re.findall(exp, values)
+   
+def recursive_parser(data, fields):
+    if isinstance(data, dict):
+        for key, value in data.items():
+          print(key)
+          if isinstance(value,str) and re.match(exp, value):
+            print("matched: ", value)
+          print()
+        if isinstance(value, (dict,list)):
+            recursive_parser(value, fields)
+
+recursive_parser(filtered_fhir_dict, to_include)
+
+pattern = r'\d+'  # This pattern matches one or more digits
+
+# Use the regular expression pattern in various operations
+text = "There are 123 apples and 456 oranges."
+
+# print(matches)  # Output: ['123', '456']
+
+# Create an instance of ImagingStudy (replace with your actual instance)
+imaging_study = ImagingStudy
+
+# Use the dir() function to get the list of attributes and methods
+methods_and_attributes = dir(imaging_study)
+
+# Print the list
+# for item in methods_and_attributes:
+#   print(item)
+
+
 
 # This code here creates a set of all the different kinds of resources in the
 # bundle.
-fhir_types = set()
-for entry in bundle.entry:
-  words_to_exclude = ['Claim', 'ExplanationOfBenefit']
-  fhir_types.add(entry.resource.resource_type)
-  fhir_types = fhir_types - set(words_to_exclude)
-  for entry_key in fhir_types:
-    if entry_key == bundle.entry:
-      fhir_dict[entry_key] = str(entry.resourse)
+# fhir_types = set()
+# for entry in bundle.entry:
+#   words_to_exclude = ['Claim', 'ExplanationOfBenefit']
+#   fhir_types.add(entry.resource.resource_type)
+#   fhir_types = fhir_types - set(words_to_exclude)
+#   for entry_key in fhir_types:
+#     if entry_key == bundle.entry:
+#       fhir_dict[entry_key] = str(entry.resourse)
 
 # print(fhir_types)
 # print(fhir_dict)
@@ -85,20 +150,3 @@ for entry in bundle.entry:
 
 # # Print filtered data
 # print(filtered_data)
-
-'''
-for res_type in matches:
-  print(res_type)
-
-# excluded_words = [ i for i in words if not re.findall(r'\d', i ) ]
-
-
-# Regular expression pattern to match email addresses
-email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-
-# Use regular expression to filter values by pattern
-filtered_data = {key: value for key, value in data.items() if re.search(email_pattern, value)}
-
-# Print filtered data
-print(filtered_data)
-'''
