@@ -18,6 +18,8 @@
         python311
         nodejs_20
         nodePackages.pnpm
+        prefetch-npm-deps
+        poetry
       ];
        src = [
          ./flake.nix
@@ -25,7 +27,6 @@
         ];
 
       shellHook = ''
-        virtualenv .venv
         source .venv/bin/activate
       '';
 

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "tnhimss-bill"
+version = "0.1.0"
+description = "use natural language to query healthcare records"
+authors = ["Einar Strandberg <einargs@gmail.com>"]
+readme = "README.md"
+packages = [{include = "tnhimss_bill"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-socketio = "^5.9.0"
+Quart = "^0.19.3"
+hypercorn = "^0.14.4"
+aiofiles = "^23.2.1"
+azure-cognitiveservices-speech = "^1.32.1"
+langchain = "^0.0.314"
+python-dotenv = "^1.0.0"
+openai = "^0.28.1"
+tiktoken = "^0.5.1"
+"fhir.resources" = "^7.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
