@@ -19,10 +19,22 @@
       };
 
       backend-app-env = (pkgs.poetry2nix.mkPoetryEnv {
-        projectDir = ./.;
-        src = ./src;
+        pyproject = ./pyproject.toml;
+        poetrylock = ./poetry.lock;
         python = pkgs.python311;
         preferWheels = true;
+        overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend
+          (self: super: {
+            neo4j = super.neo4j.overridePythonAttrs
+            (
+              old: {
+                buildInputs = (old.buildInputs or [ ]) ++ [
+                  super.setuptools
+                  super.tomlkit
+                ];
+              }
+            );
+          });
       });
 
       query-app = pkgs.symlinkJoin {
@@ -47,10 +59,11 @@
     packages.x86_64-linux = {
       site = site-dist;
     };
-    nixosModules.backend = args: import ./vm/site-service.nix ({
-      query-site = site-dist;
-      inherit query-app;
-    } // args);
+    nixosModules.backend = {pkgs,config,lib, ...}@args:
+      import ./backend-service.nix ({
+        query-site = site-dist;
+        inherit query-app;
+      } // args);
     devShells.x86_64-linux.default = mkShell {
       buildInputs = [
         # `virtualenv` is a more capable version of the `venv` module.
