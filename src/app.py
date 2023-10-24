@@ -6,7 +6,8 @@ import aiofiles
 import pathlib
 from fhir.resources.R4B.bundle import Bundle
 from dotenv import load_dotenv
-import query
+# TODO: re-enable.
+# import query
 
 # If we end up needing quart, this is how you integerate the two:
 # https://python-socketio.readthedocs.io/en/latest/api.html#socketio.ASGIApp
