@@ -5,6 +5,8 @@ import asyncio
 import aiofiles
 import pathlib
 from fhir.resources.R4B.bundle import Bundle
+from dotenv import load_dotenv
+import query
 
 # If we end up needing quart, this is how you integerate the two:
 # https://python-socketio.readthedocs.io/en/latest/api.html#socketio.ASGIApp
@@ -13,8 +15,21 @@ from quart_cors import cors
 
 app = Quart(__name__)
 app = cors(app, allow_origin="*")
-sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 asgi = socketio.ASGIApp(sio, other_asgi_app=app)
+
+async def question_response(sid, question):
+  """Responds to a question asked by a user.
+
+  Also responds with the underlying records."""
+  records = await query.get_records(question)
+  task = asyncio.create_task(
+    sio.emit('records', data=records, to=sid)
+  )
+  response = await qa_with_records(records, question)
+  await asyncio.gather(
+    task,
+    sio.emit('sever-msg', data=response, to=sid)
+  )
 
 def patient_json_path(patient_id):
   """
@@ -62,6 +77,7 @@ async def send_to_chatbot(msg):
   Send a string to the chatbot and get back its response.
   """
   return f'PLACEHOLDER RESPONSE TO {msg}'
+
 @sio.on('connect')
 async def handle_connect(sid, arg):
   print("connected {}".format(sid))

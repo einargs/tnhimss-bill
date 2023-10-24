@@ -9,8 +9,12 @@
   };
 
   outputs = { self, nixpkgs }: 
-  let system = "x86_64-linux"; in
-  with nixpkgs.legacyPackages.${system}; {
+  let system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+  in with pkgs; {
     devShells.x86_64-linux.default = mkShell {
       buildInputs = [
         # `virtualenv` is a more capable version of the `venv` module.
@@ -20,6 +24,9 @@
         nodePackages.pnpm
         prefetch-npm-deps
         poetry
+        neo4j
+        neo4j-desktop
+        docker
       ];
        src = [
          ./flake.nix

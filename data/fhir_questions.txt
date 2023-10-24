@@ -1,0 +1,59 @@
+# Ruth
+What is PATIENT’s age?
+What is PATIENT’s gender?
+What is PATIENT’s race?
+What is PATIENT’s date of birth?
+What are PATIENT’s allergies?
+What is PATIENT’s past medical history?
+What is PATIENT’s past surgical history?
+What is PATIENT’s family medical history (e.g., cardiovascular disease, diabetes, cancer)?
+Have PATIENT or any of PATIENT’s family members ever had a reaction to anesthesia?
+Does PATIENT smoke?  If so, how many packs per day?
+Does PATIENT drink?  If so, how much and how frequently?
+What medications does PATIENT take (e.g., over the counter, prescription, recreational, natural remedies)?
+Is PATIENT up to date on immunizations?
+What is PATIENT’s highest level of education?
+What is PATIENT’s preferred language?
+What are PATIENT’s preferred learning methods?
+Does PATIENT have any language barriers?
+Does PATIENT need an interpreter?
+Does PATIENT require any assistance with activities of daily living?
+Does PATIENT have a vision impairment?
+Does PATIENT have a hearing impairment?
+Has PATIENT had a decreased appetite or recently lost weight without trying?
+Has PATIENT had a recent fall?
+Does PATIENT have a positive suicide screen?
+Does PATIENT have a positive domestic violence screen?
+
+# Einar -- based these on records in the file, so they should have answers
+What was the last surgical procedure PATIENT had?
+Who is PATIENT's primary care practitioner?
+Does PATIENT have a primary care practitioner?
+What is PATIENT's insurance?
+When was the last time PATIENT had the flu?
+When was the last time PATIENT had influenza?
+Does PATIENT have a history of cardiovascular disease?
+What were the results of PATIENT's last metabolic panel?
+How much creatine did PATIENT's last metabolic panel show?
+What was the last immunization PATIENT recieved?
+How much hemoglobin did PATIENT have last time it was measured?
+How many years did PATIENT smoke for?
+What were PATIENT's vital signs?
+What are PATIENT's vital signs?
+What were PATIENT's vital signs last time they were measured?
+What is PATIENT's BMI?
+What is PATIENT's Body Mass Index?
+How severe did PATIENT rate their pain?
+Are there any vaccinations that PATIENT missed?
+How high is PATIENT?
+When was the last time PATIENT had a checkup?
+When was the last time PATIENT saw their primary care physician?
+Has PATIENT ever had a heart attack?
+Has PATIENT's father ever had a heart attack?
+When was the last time PATIENT had a metabolic panel?
+When was the last time PATIENT had blood work done?
+What is the PATIENT's blood pressure?
+What is the PATIENT's systolic blood pressure?
+What is the PATIENT's diastolic blood pressure?
+What was the PATIENT's diastolic blood pressure three years ago?
+Has the PATIENT's blood pressure increased in the last five years?
