@@ -6,6 +6,7 @@ import aiofiles
 import pathlib
 from fhir.resources.R4B.bundle import Bundle
 from dotenv import load_dotenv
+from socket_server import sio
 # TODO: re-enable.
 # import query
 

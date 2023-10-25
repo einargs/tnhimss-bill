@@ -22,9 +22,9 @@ type FormData = {
 
 const patientIds = ['aaron-brekke']
 
-const URL = "http://localhost:5000";
 // ! KEEP SOCKET HERE TO PREVENT RE-CONNECTIONS
-const socket = io(URL);
+// We use vite.config.ts to proxy the connection
+const socket = io();
 
 function useSocket(setIsSending: React.Dispatch<React.SetStateAction<boolean>>) {
     const [transcript, setTranscript] = useState<string[]>([]);

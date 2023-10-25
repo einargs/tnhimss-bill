@@ -19,6 +19,7 @@ tiktoken = "^0.5.1"
 "fhir.resources" = "^7.0.2"
 neo4j = "^5.13.0"
 numpy = "^1.26.1"
+quart-cors = "^0.7.0"
 
 
 [build-system]

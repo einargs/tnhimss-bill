@@ -9,4 +9,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      '/socket.io': {
+        target: 'ws://[::1]:8000',
+        changeOrigin: true,
+        ws: true,
+      },
+    },
+  },
 })
