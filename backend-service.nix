@@ -1,6 +1,6 @@
 { config, pkgs, lib, query-app, ... }:
 
-let cfg = config.services.visit-notes-backend; in
+let cfg = config.services.query-backend; in
 with lib;
 
 {
