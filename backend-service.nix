@@ -24,6 +24,7 @@ with lib;
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
       environment = {
+        FHIR_PATH = "${./data/fhir}";
         ENV_FILE = "/var/lib/query-backend/env-file";
         PORT = builtins.toString cfg.port;
       };

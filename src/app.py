@@ -37,9 +37,10 @@ def patient_json_path(patient_id):
   """
   Converts a patient ID into the correct path to their json file.
   """
+  fhir_path = pathlib.Path(os.environ.get("FHIR_PATH", "./data/fhir"))
   match patient_id:
     case "aaron-brekke":
-      return pathlib.Path("./data/fhir/Aaron697_Brekke496_2fa15bc7-8866-461a-9000-f739e425860a.json")
+      return fhir_path / "Aaron697_Brekke496_2fa15bc7-8866-461a-9000-f739e425860a.json"
     case _:
       raise "Unknown patient id"
 
