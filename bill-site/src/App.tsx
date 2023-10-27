@@ -40,6 +40,7 @@ function useSocket(setIsSending: React.Dispatch<React.SetStateAction<boolean>>) 
         }
 
         function onServerMsg(msg: any) {
+            console.log("server message", msg)
             setTranscript(prev => [...prev, msg])
             setIsSending(false);
 
@@ -48,8 +49,10 @@ function useSocket(setIsSending: React.Dispatch<React.SetStateAction<boolean>>) 
         socket.on('connect', onConnect);
         socket.on('disconnect', onDisconnect);
         socket.on('server-msg', onServerMsg)
+        console.log("connecting")
 
         return () => {
+            console.log("Disconnecting")
             socket.off('connect', onConnect);
             socket.off('disconnect', onDisconnect);
             socket.off('server-msg', onServerMsg)
@@ -67,6 +70,7 @@ function App() {
     function startChat(patientId: string) {
         setSelectedPatient(patientId);
         socket.emit('start-chat', patientId);
+        console.log("selected", patientId)
         setIsChatStarted(true);
     }
 
