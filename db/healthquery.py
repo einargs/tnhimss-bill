@@ -1,3 +1,5 @@
+# This is the raw code that kiriti has been working on.
+# I've adapted this to run with everything else in src/query.py
 import os
 import time
 import logging
