@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 
 function Condition({ medicalData }: any ) {
     console.log("condition", medicalData)
