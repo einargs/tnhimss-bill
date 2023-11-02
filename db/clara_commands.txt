@@ -37,7 +37,9 @@ create (org: Organization {name: ent.resource.name, orgtype: ent.resource.type[0
 call apoc.load.json("file:///Clara183_Carbajal274_FHIR.json") yield value unwind value.entry as ent
 with ent
 where ent.resource.resourceType ="Encounter"
-create (enc: Encounter {type: ent.resource.class.code, id: ent.resource.id, provider: ent.resource.participant[0].individual.reference,
+create (enc: Encounter {
+type: "encounter",
+code: ent.resource.class.code, id: ent.resource.id, provider: ent.resource.participant[0].individual.reference,
 encstart: ent.resource.period.start,
 encend: ent.resource.period.end,
 id: ent.resource.id,
@@ -52,7 +54,6 @@ call apoc.load.json("file:///Clara183_Carbajal274_FHIR.json") yield value unwind
 with ent
 where ent.resource.resourceType ="Condition"
 create (c: Condition {
-type: ent.resource.resourceType,
 id: ent.resource.id,
 clinicalstatus: ent.resource.clinicalstatus.coding[0].code,
 verificationstatus: ent.resource.verificationStatus.coding[0].code,

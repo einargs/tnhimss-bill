@@ -48,11 +48,12 @@ Relationships:
 - NEXTCONDITION
 - HASOBSERVATION
 - REVEALEDCONDITION
+- TREATMENTFOR
 
 Cypher examples:
 # Example using patient name
-# How many procedures has patient 'Clara183 Carbajal274' undergone?
-MATCH (p:Patient {{fname:"Clara183", lname:"Carbajal274"}})-[:PROCEDUREFORTREATMENT]->(procedure)
+# How many procedures has patient 'Clara Carbajal' undergone?
+MATCH (p:Patient {{fname:"Clara", lname:"Carbajal"}})-[:PROCEDUREFORTREATMENT]->(procedure)
 RETURN count(procedure) AS procedureCount
 
 # Example using patient ID
