@@ -73,7 +73,7 @@ async def qa_with_records(records, chat_history, question):
   # I want to process the records into something that's more plain text instead
   # of JSON. I don't know if that will actually help it answer better.
   res = await qa_chain.acall({"question": question, "context": records,
-    "history": ConversationBufferWindowMemory(k=5,chat_memory=msg_history)})
+    "history": ConversationBufferWindowMemory(k=20,chat_memory=msg_history)})
   return res[qa_chain.output_key]
 
 if __name__ == "__main__":
