@@ -1,0 +1,64 @@
+// Locking down unique IDs. Can't have duplicates in our matrix.
+CREATE CONSTRAINT pid IF NOT EXISTS FOR (p:Patient) REQUIRE p.id IS UNIQUE;
+CREATE CONSTRAINT prid IF NOT EXISTS FOR (p:Practitioner) REQUIRE p.id IS UNIQUE;
+CREATE CONSTRAINT orgid IF NOT EXISTS FOR (o:Organization) REQUIRE o.id IS UNIQUE;
+CREATE CONSTRAINT encid IF NOT EXISTS FOR (e:Encounter) REQUIRE e.id_name IS UNIQUE;
+CREATE CONSTRAINT cond IF NOT EXISTS FOR (c:Condition) REQUIRE c.id IS UNIQUE;
+CREATE CONSTRAINT obs IF NOT EXISTS FOR (o:Observation) REQUIRE o.id IS UNIQUE;
+CREATE CONSTRAINT mr IF NOT EXISTS FOR (m:MedicationRequest) REQUIRE m.id IS UNIQUE;
+CREATE CONSTRAINT pr IF NOT EXISTS FOR (pr:Procedure) REQUIRE pr.id IS UNIQUE;
+
+// Making connections.
+
+
+match (p:Patient),(e:Encounter) where e.patient_id = p.id CREATE (p)-[r:HASENCOUNTER]->(e)
+RETURN type(r);
+
+
+
+match (o: Observation),(e: Encounter) where o.encounter_id = e.id CREATE (e)-[r:HASOBSERVATION]->(o)
+RETURN type(r);
+
+
+
+match (c: Condition),(e: Encounter) where c.encounter_id contains e.id CREATE (e)-[r:REVEALEDCONDITION]->(c)
+RETURN type(r);
+
+
+
+match (c: Condition),(p: Patient) where c.patient_id = p.id CREATE (p)-[r:CONDITION {date: c.onset_date}]->(c)
+RETURN type(r);
+
+
+match (c: Condition),(mr: MedicationRequest) where mr.reason_id = c.id CREATE (mr)-[r:TREATMENTFOR]->(c)
+RETURN type(r);
+
+
+match (c: Condition),(pr: Procedure) where pr.reason_id = c.id  CREATE (pr)-[r:PROCEDUREFORTREATMENT]->(c)
+RETURN type(r);
+
+match (e: Encounter),(pr: Procedure) where pr.encounter_id = e.id  CREATE (pr)-[r:PROCEDUREINENCOUNTER]->(c)
+RETURN type(r);
+
+
+MATCH (c:Condition)
+WITH c
+ORDER BY c.onset_date ASC
+LIMIT 50
+WITH collect(c) as conditions
+FOREACH (i in range(0, size(conditions) - 2) |
+ FOREACH (node1 in [conditions[i]] |
+  FOREACH (node2 in [conditions[i+1]] |
+   CREATE (node1)-[:NEXTCONDITION{date: node2.onset_date}]->(node2))));
+
+
+MATCH (c:Condition), (p:Patient) where c.patient_id = p.id
+WITH c, p ORDER BY c.onsetdate ASC LIMIT 1
+CREATE (p)-[r:FIRSTCONDITION {date: c.onset_date}]->(c)
+RETURN type(r);
+
+
+MATCH (c:Condition), (p:Patient) where c.patient_id = p.id
+WITH c, p ORDER BY c.onset_date DESC LIMIT 1
+CREATE (p)-[r:LATESTCONDITION {date: c.onset_date}]->(c)
+RETURN type(r);

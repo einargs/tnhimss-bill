@@ -17,7 +17,6 @@ import os
 
 load_dotenv()
 
-# TODO: code to load in all of the different bundles into the graph.
 # NOTE: could make all questions have an accompanying patient id that we're
 # asking questions about? That way you can change who you're asking questions
 # about without removing chat history?
@@ -81,11 +80,11 @@ if __name__ == "__main__":
       user_input = input("Enter a medical history query (or type 'exit' to quit): ")
       if user_input.lower() == 'exit':
           break
-      records = await get_records(q)
+      records = await get_records(user_input)
       print(f"related records: {records}")
-      res = await qa_with_records(records, chat_history, q)
+      res = await qa_with_records(records, chat_history, user_input)
       print(f"response: {res}")
-      chat_history.append(HumanMessage(content=res))
+      chat_history.append(HumanMessage(content=user_input))
       chat_history.append(AIMessage(content=res))
       print(chat_history)
-  # asyncio.run(main())
+  asyncio.run(main())

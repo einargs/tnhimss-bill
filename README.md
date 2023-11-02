@@ -53,7 +53,7 @@ type I need to know about.
 ## Run backend
 To run the backend locally, run:
 ```
-hypercorn app:asgi -b [::1]:8000
+hypercorn src/app:asgi -b [::1]:8000
 ```
 Make sure to use `[::1]` instead of localhost; for some reason it makes a
 difference with the vite proxy.

@@ -15,7 +15,15 @@ CREATE CONSTRAINT pr IF NOT EXISTS FOR (pr:Procedure) REQUIRE pr.id IS UNIQUE;
 // Unleashing the JSON data stream, starting with patients.
 
 call apoc.load.json("file:///Clara183_Carbajal274_FHIR.json") yield value unwind value.entry as ent with ent where ent.resource.resourceType ="Patient"
-Create (p: Patient {lname: ent.resource.name[0].family, fname: ent.resource.name[0].given[0], sex: ent.resource.gender, birthDate: ent.resource.birthDate, state: ent.resource.address[0].state, city: ent.resource.address[0].city, zip: ent.resource.address[0].postalCode, id: ent.resource.id});
+Create (p: Patient {
+  lname: ent.resource.name[0].family,
+  fname: ent.resource.name[0].given[0],
+  sex: ent.resource.gender,
+  birthDate: ent.resource.birthDate,
+  state: ent.resource.address[0].state,
+  city: ent.resource.address[0].city,
+  zip: ent.resource.address[0].postalCode,
+  id: ent.resource.id});
 
 // Next node - practitioners.
 
@@ -30,7 +38,12 @@ CREATE (prov: Practitioner {fname: ent.resource.name[0].given[0], name: ent.reso
 call apoc.load.json("file:///Clara183_Carbajal274_FHIR.json") yield value unwind value.entry as ent
 with ent
 where ent.resource.resourceType ="Organization"
-create (org: Organization {name: ent.resource.name, orgtype: ent.resource.type[0].coding[0].display, id: ent.resource.id, addressCity: ent.resource.address[0].city, addressState: ent.resource.address[0].state, addressLine: ent.resource.address[0].line[0]});
+create (org: Organization {name: ent.resource.name,
+orgtype: ent.resource.type[0].coding[0].display,
+id: ent.resource.id,
+addressCity: ent.resource.address[0].city,
+addressState: ent.resource.address[0].state,
+addressLine: ent.resource.address[0].line[0]});
 
 // Encounters
 
@@ -39,7 +52,8 @@ with ent
 where ent.resource.resourceType ="Encounter"
 create (enc: Encounter {
 type: "encounter",
-code: ent.resource.class.code, id: ent.resource.id, provider: ent.resource.participant[0].individual.reference,
+code: ent.resource.class.code,
+provider: ent.resource.participant[0].individual.reference,
 encstart: ent.resource.period.start,
 encend: ent.resource.period.end,
 id: ent.resource.id,
