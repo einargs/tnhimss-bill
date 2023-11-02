@@ -1,0 +1,8 @@
+// We're creating readonly users so that the generated cypher code can't
+// accidentally modify the graph.
+CREATE USER $NEO4J_QUERY_USER IF NOT EXISTS
+  SET PLAINTEXT PASSWORD '$NEO4J_QUERY_PASSWORD'
+  SET PASSWORD CHANGE NOT REQUIRED;
+
+
+GRANT ROLE reader TO query;
