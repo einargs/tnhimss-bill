@@ -11,11 +11,10 @@ function Condition({ medicalData }: any ) {
                 {/*<CardDescription>{medicalData.conditioncode}</CardDescription>*/}
             </CardHeader>
             <CardContent>
-                <p><strong>Condition Code:</strong> {medicalData.conditioncode}</p>
-                {/*<p><strong>Type:</strong> {medicalData.type}</p>*/}
-                <p><strong>Recorded Date:</strong> {dayjs(medicalData.recordeddata).format('MM/DD/YYYY')}</p>
-                <p><strong>Verification Status:</strong> {medicalData.verificationstatus}</p>
-                <p><strong>Onset Date:</strong> {dayjs(medicalData.onsetdate).format('MM/DD/YYYY')}</p>
+                <p><strong>Condition Code:</strong> {medicalData.description}</p>
+                <p><strong>Clinical Status:</strong> {medicalData.clinical_status}</p>
+                <p><strong>Recorded Date:</strong> {dayjs(medicalData.recorded_date).format('MM/DD/YYYY')}</p>
+                <p><strong>Onset Date:</strong> {dayjs(medicalData.onset_date).format('MM/DD/YYYY')}</p>
             </CardContent>
             {/*<CardFooter>*/}
             {/*    <p>Condition ID: {medicalData.id}</p>*/}

@@ -11,11 +11,12 @@ function Organization({ medicalData }: any) {
             </CardHeader>
             <CardContent>
                 <p><strong>Name:</strong> {medicalData.name}</p>
-                <p><strong>Organization:</strong> {medicalData.orgtype}</p>
+                <p><strong>Organization:</strong> {medicalData.organization_type}</p>
                 {/*<p><strong>Type:</strong> {medicalData.type}</p>*/}
-                <p><strong>City:</strong> {medicalData.addressCity}</p>
-                <p><strong>State:</strong> {medicalData.addressState}</p>
-                <p><strong>ZIP:</strong> {medicalData.addressLine}</p>
+                <p><strong>City:</strong> {medicalData.city}</p>
+                <p><strong>State:</strong> {medicalData.state}</p>
+                <p><strong>ZIP:</strong> {medicalData.zip_code}</p>
+                <p><strong>Address:</strong> {medicalData.address_line}</p>
             </CardContent>
             {/*<CardFooter>*/}
                 {/*<p>Organization ID: {medicalData.id}</p>*/}

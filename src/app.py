@@ -20,6 +20,34 @@ app = Quart(__name__)
 app = cors(app, allow_origin="*")
 asgi = socketio.ASGIApp(sio, other_asgi_app=app)
 
+def is_displayable_record(record):
+  return (isinstance(record, dict) and
+    'type' in record and
+    record['type'] in ['condition','patient','organization'])
+
+def record_from_dict_values(map):
+  if isinstance(map, dict):
+    for record in filter(is_displayable_record, map.values()):
+      return record
+  return None
+
+async def send_records(records, to):
+  async def send(r):
+    if r['type'] == 'patient':
+      r['birth_date'] = str(r['birth_date'])
+    await sio.emit('records', data=r, to=to)
+  # We only send the records if we know they're the right shape.
+  if is_displayable_record(records):
+    await send(records)
+  elif (drecord := record_from_dict_values(records)):
+    await send(drecord)
+  elif isinstance(records, list):
+    for record in records:
+      if is_displayable_record(record):
+        await send(record)
+      elif (drecord := record_from_dict_values(record)):
+        await send(drecord)
+
 async def send_msg(msg, *, to):
   """Send the contents of a langchain message to the client to be displayed."""
   await sio.emit('server-msg', data=msg.content, to=to)
@@ -30,7 +58,7 @@ async def question_response(sid, chat_history, question):
   Also responds with the underlying records."""
   records = await asyncio.create_task(query.get_records(question))
   task = asyncio.create_task(
-    sio.emit('records', data=records, to=sid)
+    send_records(records, to=sid)
   )
   response = await query.qa_with_records(records, chat_history, question)
   msg = AIMessage(content=response)
@@ -43,21 +71,16 @@ async def question_response(sid, chat_history, question):
 @sio.on('connect')
 async def handle_connect(sid, arg):
   print("connected {}".format(sid))
-
-@sio.on('start-chat')
-async def handle_start_chat(sid, patient_id):
-  print(f"starting chat {sid}")
   async with sio.session(sid) as session:
-    session['patient_id'] = patient_id
     start_msg = AIMessage(content='Hello! How can I help you query records today?')
-    session['chatlog'] = []
+    session['chatlog'] = [start_msg]
     await send_msg(start_msg, to=sid)
 
 @sio.on('client-msg')
 async def handle_client_msg(sid, msg_text):
   msg = HumanMessage(content=msg_text)
   async with sio.session(sid) as session:
-    if 'patient_id' not in session:
+    if 'chatlog' not in session:
       raise RuntimeError("client-msg received without first receiving a start-chat")
     reply = await question_response(sid, session['chatlog'], msg_text)
     session['chatlog'].append(msg)

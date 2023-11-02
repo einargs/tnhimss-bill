@@ -14,55 +14,26 @@ import {Input} from "@/components/ui/input"
 import {ThemeProvider} from "@/components/theme-provider.jsx";
 import {ScrollArea} from "@/components/ui/scroll-area"
 import {Card} from "@/components/ui/card.jsx";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.jsx";
 import Patient from "@/components/patient.tsx";
 import Condition from "@/components/condition.tsx";
 import Organization from "@/components/organization.tsx";
+import title from '/title.jpeg';
 
 type FormData = {
     chatInput: string;
 };
 
-type TranscriptEntry = {
-    source: 'client' | 'server' | 'medicalData',
-    message: string;
+type TextEntry = {
+    source: 'client' | 'server',
+    message: string
 };
 
-const condition = {
-    onsetdate: "1960-10-09T06:24:57-05:00",
-    pid: "urn:uuid:c698c2cc-6766-c4dd-f15a-e4b8e023c660",
-    id: "4efcd5fd-e29d-85cc-30f8-0909968e140b",
-    type: "condition",
-    recordeddata: "1960-10-09T06:24:57-05:00",
-    verificationstatus: "confirmed",
-    conditioncode: "Prediabetes",
-    encref: "urn:uuid:1e8aa5b5-c92b-65cd-ff54-b893fde5410f"
+type DataEntry = {
+  source: 'medicalData',
+  data: any
 };
 
-const patient = {
-    zip: "01940",
-    fname: "Clara",
-    type: "patient",
-    lname: "Carbajal",
-    city: "Lynn",
-    sex: "female",
-    id: "c698c2cc-6766-c4dd-f15a-e4b8e023c660",
-    state: "Massachusetts",
-    birthDate: "1992-06-12T06:24:57-05:00"
-};
-
-const organization = {
-    orgtype: "Healthcare Provider",
-    name: "PCP47622",
-    type: "organization",
-    addressState: "MA",
-    id: "b8dc71b2-c5bb-3a22-845d-ec6053397e1a",
-    addressLine: "161 EASTERN AVE",
-    addressCity: "LYNN"
-};
-
-
-const patientIds = ['aaron-brekke']
+type TranscriptEntry = TextEntry | DataEntry;
 
 // ! KEEP SOCKET HERE TO PREVENT RE-CONNECTIONS
 // * We use vite.config.ts to proxy the connection
@@ -87,14 +58,8 @@ function useSocket(setIsSending: React.Dispatch<React.SetStateAction<boolean>>) 
         }
 
         function onRecords(msg: any) {
-            // Array of the objects
-            const objects = [condition, patient, organization];
-
-            // Select a random object from the array
-            const randomObj = objects[Math.floor(Math.random() * objects.length)];
-
             console.log("records", msg)
-            setTranscript(prev => [...prev, { message: JSON.stringify(randomObj, null, 2), source: 'medicalData' }])
+            setTranscript(prev => [...prev, { data: msg, source: 'medicalData' }])
         }
 
         socket.on('connect', onConnect);
@@ -104,23 +69,12 @@ function useSocket(setIsSending: React.Dispatch<React.SetStateAction<boolean>>) 
 
         console.log("connecting")
 
-            const timerId = setTimeout(() => {
-                const objects = [condition, patient, organization];
-                const randomObj = objects[Math.floor(Math.random() * objects.length)];
-                console.log("sending", randomObj)
-                onRecords({
-                    type: 'medicalData',
-                    message: randomObj,
-                });
-            }, 2000);
-
         return () => {
             console.log("Disconnecting")
             socket.off('connect', onConnect);
             socket.off('disconnect', onDisconnect);
             socket.off('server-msg', onServerMsg);
             socket.off('records', onRecords);
-            clearTimeout(timerId);
         };
     }, []);
     return [isConnected, transcript, setTranscript]
@@ -128,15 +82,7 @@ function useSocket(setIsSending: React.Dispatch<React.SetStateAction<boolean>>) 
 
 function App() {
     const [isSending, setIsSending] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
-    const [isChatStarted, setIsChatStarted] = useState(false);
     const [isConnected, transcript, setTranscript] = useSocket(setIsSending) as [boolean, TranscriptEntry[], React.Dispatch<React.SetStateAction<TranscriptEntry[]>>];
-    function startChat(patientId: string) {
-        setSelectedPatient(patientId);
-        socket.emit('start-chat', patientId);
-        console.log("selected", patientId)
-        setIsChatStarted(true);
-    }
 
     function onSubmit(data: FormData) {
         setIsSending(true);
@@ -146,13 +92,19 @@ function App() {
         form.reset({chatInput: ""});
     }
 
-    const form = useForm<FormData>();
+    const form = useForm<FormData>({
+      defaultValues: {
+        chatInput: ''
+      },
+    });
 
     return (
         <div className="h-[94vh] flex flex-col">
             <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                 <p className='hidden'>{isConnected ? "Connected" : "Not Connected"}</p>
-                <p className='hidden'>{isChatStarted ? "Chat Started" : "Chat Not Started"}</p>
+                <div className="m-2 mt-6 pl-8">
+                  <img className="h-24" src={title} alt="Logo" />
+                </div>
                 {/*<ScrollArea className="h-full w-full rounded-md border p-4 mb-2 text-left space-y-4">*/}
                 {/*    {transcript.map((entry, idx) =>*/}
                 {/*        <Card className={`p-4 m-2 w-fit ${entry.source === 'client' ? 'mr-auto' : 'ml-auto'}`} key={idx}>{entry.message}</Card>)*/}
@@ -163,7 +115,7 @@ function App() {
                         if (entry.source === 'medicalData') {
                             try {
                                 console.log("entry", entry)
-                                const data = JSON.parse(entry.message);
+                                const data = entry.data;
                                 switch (true) {
                                     case data.type === 'patient':
                                         return <Patient medicalData={data} key={idx} />;
@@ -198,35 +150,14 @@ function App() {
                             control={form.control}
                             name="chatInput"
                             render={({field}) => (
-                                <FormItem>
-                                    <Select defaultValue={field.value} onValueChange={(e) => startChat(e.valueOf())}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a patient"/>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {patientIds.map((id, idx) =>
-                                                <SelectItem key={idx} value={id}>{id}</SelectItem>)
-                                            }
-                                        </SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="chatInput"
-                            render={({field}) => (
                                 <FormItem className="flex-grow">
                                     <FormControl className="flex-grow">
-                                        <Input placeholder="Enter your message" {...field} className="flex-grow" disabled={isSending || !selectedPatient} />
+                                        <Input placeholder="Enter your message" {...field} autoComplete="off" className="flex-grow" disabled={isSending} />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" disabled={isSending || !selectedPatient}>Submit</Button>
+                        <Button type="submit" disabled={isSending}>Submit</Button>
                     </form>
                 </Form>
             </ThemeProvider>

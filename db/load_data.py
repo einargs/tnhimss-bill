@@ -62,7 +62,7 @@ def gen_address(e):
     'state': a.state,
     'city': a.city,
     'zip_code': a.postalCode,
-    'address_line': e.address[0].line[0]
+    'address_line': " ".join(e.address[0].line)
   }
 
 def gen_period(prefix, period):
@@ -111,8 +111,7 @@ async def load_from_bundle(session, bundle):
       'provider_id': clean_ref(e.participant[0].individual.reference),
       'organization_name': e.serviceProvider.display,
       'organization_id': clean_ref(e.serviceProvider.reference),
-      #**reason_code(e),
-      # 'reason': e.reasonCode?[0].coding[0].display,
+      **reason_code(e),
       'status': e.status,
     })
     await load(Condition, lambda e: {
