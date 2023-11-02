@@ -15,7 +15,10 @@ from fhir.resources.R4B.bundle import Bundle
 from query_prompts import CYPHER_QA_PROMPT, CYPHER_GENERATION_PROMPT
 import os
 
-load_dotenv()
+if (dotenv_path := os.environ.get("ENV_FILE")):
+  load_dotenv(dotenv_path)
+else:
+  load_dotenv()
 
 # NOTE: could make all questions have an accompanying patient id that we're
 # asking questions about? That way you can change who you're asking questions

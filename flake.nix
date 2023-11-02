@@ -64,6 +64,28 @@
         query-site = site-dist;
         inherit query-app;
       } // args);
+    devShells.x86_64-linux.server = mkShell {
+      buildInputs = [
+        # `virtualenv` is a more capable version of the `venv` module.
+        python311Packages.virtualenv
+        python311
+        poetry
+      ];
+       src = [
+         ./flake.nix
+         ./flake.lock
+        ];
+
+      shellHook = ''
+        source .venv/bin/activate
+      '';
+
+      unpackPhase = ''
+        for srcFile in $src; do
+          cp $srcFile $(stripHash $srcFile)
+        done
+      ''; 
+    };
     devShells.x86_64-linux.default = mkShell {
       buildInputs = [
         # `virtualenv` is a more capable version of the `venv` module.
