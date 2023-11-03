@@ -56,17 +56,20 @@ async def question_response(sid, chat_history, question):
   """Responds to a question asked by a user.
 
   Also responds with the underlying records."""
-  records = await asyncio.create_task(query.get_records(question))
-  task = asyncio.create_task(
-    send_records(records, to=sid)
-  )
-  response = await query.qa_with_records(records, chat_history, question)
-  msg = AIMessage(content=response)
-  await asyncio.gather(
-    task,
-    send_msg(msg, to=sid)
-  )
-  return msg
+  try:
+    records = await asyncio.create_task(query.get_records(question, chat_history))
+    task = asyncio.create_task(
+      send_records(records, to=sid)
+    )
+    response = await query.qa_with_records(records, chat_history, question)
+    msg = AIMessage(content=response)
+    await asyncio.gather(
+      task,
+      send_msg(msg, to=sid)
+    )
+    return msg
+  except Exception:
+    return AIMessage(content="Sorry, something went wrong and I couldn't understand that.")
 
 @sio.on('connect')
 async def handle_connect(sid, arg):
