@@ -37,16 +37,17 @@ async def send_records(records, to):
       r['birth_date'] = str(r['birth_date'])
     await sio.emit('records', data=r, to=to)
   # We only send the records if we know they're the right shape.
-  if is_displayable_record(records):
-    await send(records)
-  elif (drecord := record_from_dict_values(records)):
-    await send(drecord)
-  elif isinstance(records, list):
-    for record in records:
-      if is_displayable_record(record):
-        await send(record)
-      elif (drecord := record_from_dict_values(record)):
-        await send(drecord)
+  try:
+    if is_displayable_record(records):
+      await send(records)
+    elif (drecord := record_from_dict_values(records)):
+      await send(drecord)
+    elif isinstance(records, list):
+      for record in records:
+        if is_displayable_record(record):
+          await send(record)
+        elif (drecord := record_from_dict_values(record)):
+          await send(drecord)
 
 async def send_msg(msg, *, to):
   """Send the contents of a langchain message to the client to be displayed."""
