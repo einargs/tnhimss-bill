@@ -48,6 +48,8 @@ async def send_records(records, to):
           await send(record)
         elif (drecord := record_from_dict_values(record)):
           await send(drecord)
+  except:
+    pass
 
 async def send_msg(msg, *, to):
   """Send the contents of a langchain message to the client to be displayed."""
