@@ -25,6 +25,10 @@ match (c: Condition),(e: Encounter) where c.encounter_id contains e.id CREATE (e
 RETURN type(r);
 
 
+MATCH (e: Encounter),(o:Organization) where e.organization_id contains o.id
+CREATE (e)-[r:HAPPENEDAT]->(o)
+RETURN type(r);
+
 
 match (c: Condition),(p: Patient) where c.patient_id = p.id CREATE (p)-[r:CONDITION {date: c.onset_date}]->(c)
 RETURN type(r);

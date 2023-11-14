@@ -71,6 +71,7 @@ async def get_records(question, chat_history):
 async def qa_with_records(records, chat_history, question):
   qa_chain = LLMChain(
     llm=ChatOpenAI(temperature=0),
+    verbose=True,
     prompt=CYPHER_QA_PROMPT,
   )
   # I want to process the records into something that's more plain text instead
@@ -86,7 +87,7 @@ if __name__ == "__main__":
       user_input = input("Enter a medical history query (or type 'exit' to quit): ")
       if user_input.lower() == 'exit':
           break
-      records = await get_records(user_input)
+      records = await get_records(user_input, chat_history)
       print(f"related records: {records}")
       res = await qa_with_records(records, chat_history, user_input)
       print(f"response: {res}")

@@ -49,22 +49,26 @@ Relationships:
 - HASOBSERVATION
 - REVEALEDCONDITION
 - TREATMENTFOR
+- HAPPENEDAT
 
 Cypher examples:
-# Example using patient name
-Question: How many procedures has patient 'Clara Carbajal' undergone?
+Question: How many procedures has Clara Carbajal undergone?
 Cypher: MATCH (p:Patient {{fname:"Clara", lname:"Carbajal"}})-[:PROCEDUREFORTREATMENT]->(procedure)
 RETURN count(procedure) AS procedureCount
 
-# Example using patient ID
 Question: How many procedures has a patient with a given ID undergone?
 Cypher: MATCH (p:Patient {{id:"P12345"}})-[:PROCEDUREFORTREATMENT]->(procedure)
 RETURN count(procedure) AS procedureCount
 
-# Example returning information about a patient
 Question: Summarize information about Clara.
 Cypher: MATCH (p:Patient {{fname:"Clara"}})
 RETURN p
+
+Question: When did Clara last see a doctor?
+Cypher: MATCH (p:Patient {fname: 'Clara'})-[:HASENCOUNTER]->(e:Encounter)
+RETURN e.encounter_end_date
+ORDER BY e.encounter_end_date DESC
+LIMIT 1
 
 Note:
 - Do not include any explanations or apologies in your responses.
