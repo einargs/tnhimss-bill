@@ -9,10 +9,10 @@ If the provided information is empty, say that you don't know the answer.
 Past conversation with the user:
 {history}
 
-Information:
-{context}
+The question asked: {question}
 
-Question: {question}
+JSON information answering the question: {context}
+
 Helpful Answer:"""
 CYPHER_QA_PROMPT = PromptTemplate(
   input_variables=["context", "question", "history"], template=CYPHER_QA_TEMPLATE
@@ -52,20 +52,24 @@ Relationships:
 - HAPPENEDAT
 
 Cypher examples:
+# Example giving information about how many procedures the patient has had.
 Question: How many procedures has Clara Carbajal undergone?
-Cypher: MATCH (p:Patient {{fname:"Clara", lname:"Carbajal"}})-[:PROCEDUREFORTREATMENT]->(procedure)
+Cypher: MATCH (p:Patient {{ fname:"Clara", lname:"Carbajal" }})-[:PROCEDUREFORTREATMENT]->(procedure)
 RETURN count(procedure) AS procedureCount
 
+# Example using a patient ID.
 Question: How many procedures has a patient with a given ID undergone?
 Cypher: MATCH (p:Patient {{id:"P12345"}})-[:PROCEDUREFORTREATMENT]->(procedure)
 RETURN count(procedure) AS procedureCount
 
+# Example returning information about a patient
 Question: Summarize information about Clara.
 Cypher: MATCH (p:Patient {{fname:"Clara"}})
 RETURN p
 
-Question: When did Clara last see a doctor?
-Cypher: MATCH (p:Patient {fname: 'Clara'})-[:HASENCOUNTER]->(e:Encounter)
+# Example giving information about their last doctor visit.
+Question: When did Aaron last see a doctor?
+Cypher: MATCH (p:Patient {{fname: 'Aaron'}})-[:HASENCOUNTER]->(e:Encounter)
 RETURN e.encounter_end_date
 ORDER BY e.encounter_end_date DESC
 LIMIT 1
@@ -77,6 +81,15 @@ Note:
 
 question: {question}
 Cypher:
+"""
+
+extra_examples = """
+# Example giving information the location of their last medical encounter.
+Question: Where did Clara last see a doctor?
+Cypher: MATCH (p:Patient {{fname: 'Clara'}})-[:HASENCOUNTER]->(e:Encounter {{status: 'finished'}})-[:HAPPENEDAT]->(o:Organization)
+RETURN o.name
+ORDER BY e.encounter_end_date
+LIMIT 1
 """
 
 CYPHER_GENERATION_PROMPT = PromptTemplate(

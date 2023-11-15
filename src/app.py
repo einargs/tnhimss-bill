@@ -82,6 +82,10 @@ async def handle_connect(sid, arg):
     session['chatlog'] = [start_msg]
     await send_msg(start_msg, to=sid)
 
+@sio.on('disconnect')
+async def handle_disconnect(sid):
+  print(f"disconnected {sid}")
+
 @sio.on('client-msg')
 async def handle_client_msg(sid, msg_text):
   msg = HumanMessage(content=msg_text)

@@ -52,18 +52,22 @@ def make_buffer(chat_history):
 
 async def get_records(question, chat_history):
   """Get the json records that seem relevant to the question."""
+  print(f"Getting records for {question}")
   # The QAChain code doesn't properly implement async stuff, so we run it in
   # a different thread synchronously
 
   def run():
     # Chain just for performing the queries
-    query_chain = GraphCypherQAChain.from_llm(
-      ChatOpenAI(temperature=0), graph=graph, verbose=True, top_k=10,
-      prompt = CYPHER_GENERATION_PROMPT,
-      return_direct = True,
-      validate_cypher=True
-    )
-    return query_chain.run({"query":question})
+    try:
+      query_chain = GraphCypherQAChain.from_llm(
+        ChatOpenAI(temperature=0), graph=graph, verbose=True, top_k=10,
+        prompt = CYPHER_GENERATION_PROMPT,
+        return_direct = True,
+        validate_cypher=True
+      )
+      return query_chain.run({"query":question})
+    except Exception as err:
+      print(f"cypher generation error: {err}")
   output = await asyncio.to_thread(run)
   print(f"records: {output}")
   return output
