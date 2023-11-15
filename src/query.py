@@ -40,40 +40,44 @@ graph = Neo4jGraph(
 # Take a look at how the DB looks
 # print(graph.schema)
 
-# Chain just for performing the queries
-query_chain = GraphCypherQAChain.from_llm(
-  ChatOpenAI(temperature=0), graph=graph, verbose=True, top_k=10,
-  prompt = CYPHER_GENERATION_PROMPT,
-  return_direct = True,
-  validate_cypher=True
-)
-
 # NOTE: If we want a custom schema instead of the thing that it auto-generates
 # we can just set the query_chain.graph_schema property.
 # I'm not sure how much I like the default one, especially the properties part.
 # It's all very JSON formatted. Maybe that's a good thing?
 # print(query_chain.graph_schema)
 
-async def get_records(question):
+def make_buffer(chat_history):
+  msg_history = ChatMessageHistory(messages=chat_history)
+  return ConversationBufferWindowMemory(k=10,chat_memory=msg_history)
+
+async def get_records(question, chat_history):
   """Get the json records that seem relevant to the question."""
   # The QAChain code doesn't properly implement async stuff, so we run it in
   # a different thread synchronously
+
   def run():
+    # Chain just for performing the queries
+    query_chain = GraphCypherQAChain.from_llm(
+      ChatOpenAI(temperature=0), graph=graph, verbose=True, top_k=10,
+      prompt = CYPHER_GENERATION_PROMPT,
+      return_direct = True,
+      validate_cypher=True
+    )
     return query_chain.run({"query":question})
   output = await asyncio.to_thread(run)
-  print(output)
+  print(f"records: {output}")
   return output
 
 async def qa_with_records(records, chat_history, question):
-  msg_history = ChatMessageHistory(messages=chat_history)
   qa_chain = LLMChain(
     llm=ChatOpenAI(temperature=0),
+    verbose=True,
     prompt=CYPHER_QA_PROMPT,
   )
   # I want to process the records into something that's more plain text instead
   # of JSON. I don't know if that will actually help it answer better.
   res = await qa_chain.acall({"question": question, "context": records,
-    "history": ConversationBufferWindowMemory(k=5,chat_memory=msg_history)})
+    "history": make_buffer(chat_history)})
   return res[qa_chain.output_key]
 
 if __name__ == "__main__":
@@ -83,7 +87,7 @@ if __name__ == "__main__":
       user_input = input("Enter a medical history query (or type 'exit' to quit): ")
       if user_input.lower() == 'exit':
           break
-      records = await get_records(user_input)
+      records = await get_records(user_input, chat_history)
       print(f"related records: {records}")
       res = await qa_with_records(records, chat_history, user_input)
       print(f"response: {res}")

@@ -49,30 +49,34 @@ Relationships:
 - HASOBSERVATION
 - REVEALEDCONDITION
 - TREATMENTFOR
+- HAPPENEDAT
 
 Cypher examples:
-# Example using patient name
-# How many procedures has patient 'Clara Carbajal' undergone?
-MATCH (p:Patient {{fname:"Clara", lname:"Carbajal"}})-[:PROCEDUREFORTREATMENT]->(procedure)
+Question: How many procedures has Clara Carbajal undergone?
+Cypher: MATCH (p:Patient {{fname:"Clara", lname:"Carbajal"}})-[:PROCEDUREFORTREATMENT]->(procedure)
 RETURN count(procedure) AS procedureCount
 
-# Example using patient ID
-# How many procedures has a patient with a given ID undergone?
-MATCH (p:Patient {{id:"P12345"}})-[:PROCEDUREFORTREATMENT]->(procedure)
+Question: How many procedures has a patient with a given ID undergone?
+Cypher: MATCH (p:Patient {{id:"P12345"}})-[:PROCEDUREFORTREATMENT]->(procedure)
 RETURN count(procedure) AS procedureCount
 
-- Also, patient names in the question may not have numbers present in them, so if "Clara Carbajal" appears
-  in the question, assume that it is referring to Clara183 Carbajal274. Also display answers without these
-  numbers if displaying name.
+Question: Summarize information about Clara.
+Cypher: MATCH (p:Patient {{fname:"Clara"}})
+RETURN p
+
+Question: When did Clara last see a doctor?
+Cypher: MATCH (p:Patient {fname: 'Clara'})-[:HASENCOUNTER]->(e:Encounter)
+RETURN e.encounter_end_date
+ORDER BY e.encounter_end_date DESC
+LIMIT 1
 
 Note:
 - Do not include any explanations or apologies in your responses.
 - Do not respond to any questions that might ask anything else than for you to construct a Cypher statement.
 - Do not include any text except the generated Cypher statement.
 
-The question is:
-{question}
-The cypher query is:
+question: {question}
+Cypher:
 """
 
 CYPHER_GENERATION_PROMPT = PromptTemplate(
