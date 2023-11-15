@@ -10,7 +10,7 @@ from fhir.resources.R4B.procedure import Procedure
 from neo4j import AsyncGraphDatabase
 from functools import partial
 import asyncio
-import pathlib
+from pathlib import Path
 import re
 import os
 import aiofiles
@@ -165,17 +165,18 @@ async def setup_relations(session):
 # Here we specify the file we want to load.
 async def main():
   load_dotenv()
-  aaron = pathlib.Path("./data/fhir/Aaron697_Brekke496_2fa15bc7-8866-461a-9000-f739e425860a.json")
-  clara = pathlib.Path("./data/fhir/Clara183_Carbajal274_FHIR.json")
-  aaron_bundle = Bundle.parse_file(aaron)
-  clara_bundle = Bundle.parse_file(clara)
+  # aaron = pathlib.Path("./data/fhir/Aaron697_Brekke496_2fa15bc7-8866-461a-9000-f739e425860a.json")
+  # clara = pathlib.Path("./data/fhir/Clara183_Carbajal274_FHIR.json")
+  # aaron_bundle = Bundle.parse_file(aaron)
+  # clara_bundle = Bundle.parse_file(clara)
   auth = (os.environ['NEO4J_ADMIN_USER'], os.environ['NEO4J_ADMIN_PASSWORD'])
 
   async with AsyncGraphDatabase.driver("bolt://localhost:7687", auth=auth) as driver:
     async with driver.session() as session:
       await delete_all(session)
-      await load_from_bundle(session, clara_bundle)
-      await load_from_bundle(session, aaron_bundle)
+      for path in Path('/home/mtsu/tnhimss-bill/data/fhir').glob('*.json'):
+        bundle = Bundle.parse_file(path)
+        await load_from_bundle(session, bundle)
       await setup_relations(session)
 
 if __name__ == "__main__":
